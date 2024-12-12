@@ -46,6 +46,29 @@ def create_epub(entry, output_dir="epubs"):
     soup = BeautifulSoup(entry['content'], 'html.parser')
     for tag in soup.find_all(['script', 'style']):
         tag.decompose()
+
+    # Download and embed images
+    for img_tag in soup.find_all('img'):
+        img_url = img_tag['src']
+        try:
+            logging.debug(f"Downloading image from: {img_url}")
+            img_data = requests.get(img_url, stream=True)
+            img_data.raise_for_status()
+            img_content = img_data.content
+            img_extension = os.path.splitext(img_url)[1][1:]
+            if not img_extension:
+                img_extension = "jpeg" #default to jpeg if no extension
+            img_name = f"img_{uuid.uuid4()}.{img_extension}"
+            
+            epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
+            book.add_item(epub_img)
+            img_tag['src'] = img_name
+            logging.debug(f"Embedded image: {img_name}")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error downloading image from {img_url}: {e}")
+            img_tag.decompose() #remove the tag if we can't download it
+            continue
+
     sanitized_content = str(soup)
 
     # Create chapter
