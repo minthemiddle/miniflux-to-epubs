@@ -1,0 +1,6 @@
+venv
+.aider*
+epubs
+.env
+.DS_Store
+context

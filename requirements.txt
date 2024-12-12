@@ -1,0 +1,5 @@
+miniflux
+ebooklib
+python-dotenv
+requests
+beautifulsoup4
