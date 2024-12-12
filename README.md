@@ -22,12 +22,12 @@ This script fetches unread entries from a Miniflux instance and converts them in
     pip install -r requirements.txt
     ```
 
-3.  Create a `.env` file in the root directory and add your Miniflux URL and API key:
+3.  Copy `.env.example` to `.env` and adjust the Miniflux URL and API key:
 
     ```
-    MINIFLUX_URL="https://your-miniflux-instance.com"
-    MINIFLUX_API_KEY="your_api_key"
+    cp .env.example .env
     ```
+    Adjust the values in the newly created `.env` file.
 
 ## Usage
 
