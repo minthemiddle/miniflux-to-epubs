@@ -8,6 +8,7 @@ import requests
 import uuid
 import sys
 import logging
+import argparse
 
 load_dotenv()
 
@@ -88,6 +89,10 @@ def create_epub(entry, output_dir="epubs"):
 
 def main():
     """Main function to fetch unread entries and create EPUBs."""
+    parser = argparse.ArgumentParser(description="Fetch unread entries from Miniflux and create EPUBs.")
+    parser.add_argument("--limit", type=int, help="Limit the number of entries to process.")
+    args = parser.parse_args()
+
     client = miniflux.Client(MINIFLUX_URL.rstrip('/v1'), api_key=MINIFLUX_API_KEY)
 
     url = f"{MINIFLUX_URL}/v1/entries"
@@ -99,7 +104,11 @@ def main():
         return
 
     if entries and entries["entries"]:
-        for entry in entries["entries"]:
+        if args.limit:
+            limited_entries = entries["entries"][:args.limit]
+        else:
+            limited_entries = entries["entries"]
+        for entry in limited_entries:
             create_epub(entry)
     else:
         print("No unread entries found.")
