@@ -49,10 +49,18 @@ def create_epub(entry, output_dir="epubs"):
         tag.decompose()
 
     # Download and embed images
-    for picture_tag in soup.find_all('picture'):
-        img_tag = picture_tag.find('img')
-        if img_tag:
+    for figure in soup.find_all('figure'):
+        # Find image URL either from img tag or source tag
+        img_url = None
+        img_tag = figure.find('img')
+        if img_tag and img_tag.get('src'):
             img_url = img_tag['src']
+        else:
+            source_tag = figure.find('source')
+            if source_tag and source_tag.get('srcset'):
+                img_url = source_tag['srcset'].split(',')[0].split()[0]
+
+        if img_url:
             try:
                 logging.debug(f"Downloading image from: {img_url}")
                 img_data = requests.get(img_url, stream=True)
@@ -60,46 +68,33 @@ def create_epub(entry, output_dir="epubs"):
                 img_content = img_data.content
                 img_extension = os.path.splitext(img_url)[1][1:]
                 if not img_extension:
-                    img_extension = "jpeg"  # default to jpeg if no extension
+                    img_extension = "jpeg"
                 img_name = f"img_{uuid.uuid4()}.{img_extension}"
 
+                # Add image to epub
                 epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
                 book.add_item(epub_img)
-                img_tag['src'] = img_name
+
+                # Preserve figcaption if it exists
+                figcaption = figure.find('figcaption')
+                
+                # Create new figure structure
+                new_figure = soup.new_tag('figure')
+                new_img = soup.new_tag('img', src=img_name)
+                new_figure.append(new_img)
+                if figcaption:
+                    new_figure.append(figcaption)
+                
+                # Replace old figure with new one
+                figure.replace_with(new_figure)
                 logging.debug(f"Embedded image: {img_name}")
             except requests.exceptions.RequestException as e:
                 logging.error(f"Error downloading image from {img_url}: {e}")
-                picture_tag.decompose()  # remove the picture tag if we can't download it
+                figure.decompose()
                 continue
-        else:
-            # If no img tag is found, try to find source tags
-            for source_tag in picture_tag.find_all('source'):
-                srcset = source_tag.get('srcset')
-                if srcset:
-                    # Take the first URL from srcset
-                    img_url = srcset.split(',')[0].split()[0]
-                    try:
-                        logging.debug(f"Downloading image from: {img_url}")
-                        img_data = requests.get(img_url, stream=True)
-                        img_data.raise_for_status()
-                        img_content = img_data.content
-                        img_extension = os.path.splitext(img_url)[1][1:]
-                        if not img_extension:
-                            img_extension = "jpeg"  # default to jpeg if no extension
-                        img_name = f"img_{uuid.uuid4()}.{img_extension}"
 
-                        epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
-                        book.add_item(epub_img)
-                        source_tag['src'] = img_name
-                        logging.debug(f"Embedded image: {img_name}")
-                    except requests.exceptions.RequestException as e:
-                        logging.error(f"Error downloading image from {img_url}: {e}")
-                        source_tag.decompose()  # remove the source tag if we can't download it
-                        continue
-                else:
-                    source_tag.decompose()  # remove the source tag if no srcset is found
-
-    for img_tag in soup.find_all('img'):
+    # Handle standalone img tags
+    for img_tag in soup.find_all('img', recursive=False):
         if not img_tag.has_attr('src'):
             continue
         img_url = img_tag['src']
