@@ -34,13 +34,13 @@ This script fetches unread entries from a Miniflux instance and converts them in
 Run the script:
 
 ```bash
-python miniflux_to_epub.py
+python3 miniflux_to_epub.py
 ```
 
 To limit the number of entries processed, use the `--limit` argument:
 
 ```bash
-python miniflux_to_epub.py --limit 10
+python3 miniflux_to_epub.py --limit 10
 ```
 
 This will process only the first 10 unread entries.
