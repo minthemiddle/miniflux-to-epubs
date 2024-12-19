@@ -99,10 +99,10 @@ def create_epub(entry, output_dir="epubs"):
                 else:
                     source_tag.decompose()  # remove the source tag if no srcset is found
                     # If no img tag is found, try to find source tags
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Error downloading image from {img_url}: {e}")
-                picture_tag.decompose()  # remove the picture tag if we can't download it
-                continue
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error downloading image from {img_url}: {e}")
+            picture_tag.decompose()  # remove the picture tag if we can't download it
+            continue
 
     for img_tag in soup.find_all('img'):
         if not img_tag.has_attr('src'):
