@@ -114,14 +114,14 @@ def create_epub(entry, output_dir="epubs"):
                     img_extension = "jpeg"  # default to jpeg if no extension
                 img_name = f"img_{uuid.uuid4()}.{img_extension}"
 
-            epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
-            book.add_item(epub_img)
-            img_tag['src'] = img_name
-            logging.debug(f"Embedded image: {img_name}")
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error downloading image from {img_url}: {e}")
-            img_tag.decompose()  # remove the tag if we can't download it
-            continue
+                epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
+                book.add_item(epub_img)
+                img_tag['src'] = img_name
+                logging.debug(f"Embedded image: {img_name}")
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Error downloading image from {img_url}: {e}")
+                img_tag.decompose()  # remove the tag if we can't download it
+                continue
 
     sanitized_content = str(soup)
 
