@@ -76,7 +76,12 @@ def create_epub(entry, output_dir="epubs"):
     chapter = epub.EpubHtml(title=entry['title'], file_name='chapter.xhtml', lang='en')
     chapter.content = f'<h1>{entry["title"]}</h1>{sanitized_content}'
     book.add_item(chapter)
-    book.spine = [chapter]
+    book.toc = (chapter, )
+    book.spine = ['nav', chapter]
+
+    # Add navigation files (NCX and OPF)
+    book.add_item(epub.EpubNcx())
+    book.add_item(epub.EpubNav())
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
