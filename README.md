@@ -39,6 +39,14 @@ python miniflux_to_epub.py
 
 The script will fetch all unread entries from your Miniflux instance and create an EPUB file for each entry in the `epubs` directory.
 
+## Features
+
+-   Fetches unread entries from Miniflux.
+-   Converts entries to EPUB format.
+-   Downloads and embeds images in the EPUB.
+-   Cleans HTML content by removing script and style tags.
+-   Allows limiting the number of entries to process via command line argument.
+
 ## Logging
 
 The script uses the `logging` module to provide detailed output. By default, it logs debug messages to the console.
