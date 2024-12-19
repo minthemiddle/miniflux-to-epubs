@@ -72,19 +72,47 @@ def create_epub(entry, output_dir="epubs"):
                 picture_tag.decompose()  # remove the picture tag if we can't download it
                 continue
         else:
-            picture_tag.decompose() #remove the picture tag if no img tag is found
-    
+            # If no img tag is found, try to find source tags
+            for source_tag in picture_tag.find_all('source'):
+                srcset = source_tag.get('srcset')
+                if srcset:
+                    # Take the first URL from srcset
+                    img_url = srcset.split(',')[0].split()[0]
+                    try:
+                        logging.debug(f"Downloading image from: {img_url}")
+                        img_data = requests.get(img_url, stream=True)
+                        img_data.raise_for_status()
+                        img_content = img_data.content
+                        img_extension = os.path.splitext(img_url)[1][1:]
+                        if not img_extension:
+                            img_extension = "jpeg"  # default to jpeg if no extension
+                        img_name = f"img_{uuid.uuid4()}.{img_extension}"
+
+                        epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
+                        book.add_item(epub_img)
+                        source_tag['src'] = img_name
+                        logging.debug(f"Embedded image: {img_name}")
+                    except requests.exceptions.RequestException as e:
+                        logging.error(f"Error downloading image from {img_url}: {e}")
+                        source_tag.decompose()  # remove the source tag if we can't download it
+                        continue
+                else:
+                    source_tag.decompose()  # remove the source tag if no srcset is found
+
     for img_tag in soup.find_all('img'):
+        if not img_tag.has_attr('src'):
+            continue
         img_url = img_tag['src']
-        try:
-            logging.debug(f"Downloading image from: {img_url}")
-            img_data = requests.get(img_url, stream=True)
-            img_data.raise_for_status()
-            img_content = img_data.content
-            img_extension = os.path.splitext(img_url)[1][1:]
-            if not img_extension:
-                img_extension = "jpeg"  # default to jpeg if no extension
-            img_name = f"img_{uuid.uuid4()}.{img_extension}"
+        if img_url:
+            try:
+                logging.debug(f"Downloading image from: {img_url}")
+                img_data = requests.get(img_url, stream=True)
+                img_data.raise_for_status()
+                img_content = img_data.content
+                img_extension = os.path.splitext(img_url)[1][1:]
+                if not img_extension:
+                    img_extension = "jpeg"  # default to jpeg if no extension
+                img_name = f"img_{uuid.uuid4()}.{img_extension}"
 
             epub_img = epub.EpubImage(uid=img_name, file_name=img_name, content=img_content)
             book.add_item(epub_img)
