@@ -35,6 +35,8 @@ def create_epub(entry, output_dir="epubs"):
     book.set_identifier(str(uuid.uuid4()))
     book.set_title(entry['title'])
     book.add_author(entry.get('author', 'Unknown'))
+    book.add_metadata('DC', 'subject', 'RSS')  # Add subject metadata
+    book.add_metadata('DC', 'date', entry.get('published_at', 'Unknown'))  # Add date metadata
 
     # Fetch the content if it's not already present
     if not entry.get('content'):
