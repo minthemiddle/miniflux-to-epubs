@@ -37,6 +37,14 @@ Run the script:
 python miniflux_to_epub.py
 ```
 
+To limit the number of entries processed, use the `--limit` argument:
+
+```bash
+python miniflux_to_epub.py --limit 10
+```
+
+This will process only the first 10 unread entries.
+
 The script will fetch all unread entries from your Miniflux instance and create an EPUB file for each entry in the `epubs` directory.
 
 ## Features
