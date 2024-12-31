@@ -45,7 +45,13 @@ python3 miniflux_to_epub.py --limit 10
 
 This will process only the first 10 unread entries.
 
-The script will fetch all unread entries from your Miniflux instance and create an EPUB file for each entry in the `epubs` directory.
+To create a single EPUB file from all entries, use the `--all-in-one` argument:
+
+```bash
+python3 miniflux_to_epub.py --all-in-one
+```
+
+The script will fetch all unread entries from your Miniflux instance and create an EPUB file for each entry in the `epubs` directory, or a single EPUB file if the `--all-in-one` argument is used.
 
 ## Features
 
