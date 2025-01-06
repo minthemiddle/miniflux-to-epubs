@@ -206,7 +206,7 @@ def create_combined_epub(entries, output_dir="epubs"):
                 if source_tag and source_tag.get('srcset'):
                     img_url = source_tag['srcset'].split(',')[0].split()[0]
 
-            if img_url:
+            if img_url and not img_url.startswith('data:'):
                 try:
                     logging.debug(f"Downloading image from: {img_url}")
                     img_data = requests.get(img_url, stream=True)
@@ -244,7 +244,7 @@ def create_combined_epub(entries, output_dir="epubs"):
             if not img_tag.has_attr('src'):
                 continue
             img_url = img_tag['src']
-            if img_url:
+            if img_url and not img_url.startswith('data:'):
                 try:
                     logging.debug(f"Downloading image from: {img_url}")
                     img_data = requests.get(img_url, stream=True)
