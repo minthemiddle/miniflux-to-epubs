@@ -284,7 +284,7 @@ def create_combined_epub(entries, output_dir="epubs"):
     os.makedirs(output_dir, exist_ok=True)
 
     # Write the EPUB file
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y-%m-%d")
     output_path = os.path.join(output_dir, f"miniflux_all_{timestamp}.epub")
     epub.write_epub(output_path, book, {})
     print(f"Created combined EPUB: {output_path}")
