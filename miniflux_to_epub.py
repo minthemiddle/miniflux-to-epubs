@@ -9,6 +9,7 @@ import uuid
 import sys
 import logging
 import argparse
+from datetime import datetime
 
 load_dotenv()
 
@@ -172,7 +173,8 @@ def create_combined_epub(entries, output_dir="epubs"):
     """Creates a single EPUB file from multiple Miniflux entries."""
     book = epub.EpubBook()
     book.set_identifier(str(uuid.uuid4()))
-    book.set_title("Miniflux Articles")
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    book.set_title(f"Miniflux Articles - {current_date}")
     book.add_author("Miniflux")
     book.add_metadata('DC', 'subject', 'RSS')  # Add subject metadata
     
